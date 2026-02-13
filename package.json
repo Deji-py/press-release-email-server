@@ -2,14 +2,12 @@
   "name": "resend-email-server",
   "version": "1.0.0",
   "description": "Dedicated email server for handling Resend API requests",
-  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "dev": "node --import tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "eslint src/**/*.ts",
-    "vercel-build": "npm run build"
+    "lint": "eslint src/**/*.ts"
   },
   "keywords": [
     "email",
