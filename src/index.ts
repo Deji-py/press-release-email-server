@@ -81,49 +81,49 @@ app.use((_req: Request, res: Response) => {
 app.use(errorHandler);
 
 // Start server only if not in Vercel environment
-if (process.env.VERCEL !== "1") {
-  const server = app.listen(PORT, () => {
-    logger.info(`Email server running`, {
-      port: PORT,
-      environment: NODE_ENV,
-      corsOrigins,
-    });
-  });
+// if (process.env.VERCEL !== "1") {
+//   const server = app.listen(PORT, () => {
+//     logger.info(`Email server running`, {
+//       port: PORT,
+//       environment: NODE_ENV,
+//       corsOrigins,
+//     });
+//   });
 
-  // Graceful shutdown
-  process.on("SIGTERM", () => {
-    logger.info("SIGTERM received, shutting down gracefully");
-    server.close(() => {
-      logger.info("Email server stopped");
-      process.exit(0);
-    });
-  });
+//   // Graceful shutdown
+//   process.on("SIGTERM", () => {
+//     logger.info("SIGTERM received, shutting down gracefully");
+//     server.close(() => {
+//       logger.info("Email server stopped");
+//       process.exit(0);
+//     });
+//   });
 
-  process.on("SIGINT", () => {
-    logger.info("SIGINT received, shutting down gracefully");
-    server.close(() => {
-      logger.info("Email server stopped");
-      process.exit(0);
-    });
-  });
+//   process.on("SIGINT", () => {
+//     logger.info("SIGINT received, shutting down gracefully");
+//     server.close(() => {
+//       logger.info("Email server stopped");
+//       process.exit(0);
+//     });
+//   });
 
-  // Handle uncaught exceptions
-  process.on("uncaughtException", (error) => {
-    logger.error("Uncaught exception", {
-      error: error.message,
-      stack: error.stack,
-    });
-    process.exit(1);
-  });
+//   // Handle uncaught exceptions
+//   process.on("uncaughtException", (error) => {
+//     logger.error("Uncaught exception", {
+//       error: error.message,
+//       stack: error.stack,
+//     });
+//     process.exit(1);
+//   });
 
-  // Handle unhandled promise rejections
-  process.on("unhandledRejection", (reason, promise) => {
-    logger.error("Unhandled rejection", {
-      reason: String(reason),
-      promise: String(promise),
-    });
-    process.exit(1);
-  });
-}
+//   // Handle unhandled promise rejections
+//   process.on("unhandledRejection", (reason, promise) => {
+//     logger.error("Unhandled rejection", {
+//       reason: String(reason),
+//       promise: String(promise),
+//     });
+//     process.exit(1);
+//   });
+// }
 
 export default app;
