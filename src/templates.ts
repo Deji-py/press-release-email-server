@@ -1,4 +1,4 @@
-import { EmailTemplateConfig } from "./types.js";
+import { EmailTemplateConfig } from "./types";
 
 /**
  * Email template IDs and configurations

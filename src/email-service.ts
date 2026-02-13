@@ -1,14 +1,14 @@
 import { Resend } from "resend";
-import logger from "./logger.js";
-import { SendEmailRequest, SendEmailResponse, ErrorCode } from "./types.js";
+import logger from "./logger";
+import { SendEmailRequest, SendEmailResponse, ErrorCode } from "./types";
 import {
   isValidEmail,
   getFriendlyErrorMessage,
   isNetworkError,
   isTimeoutError,
   normalizeVariableNames,
-} from "./utils.js";
-import { getTemplateId } from "./templates.js";
+} from "./utils";
+import { getTemplateId } from "./templates";
 
 /**
  * Email service for handling Resend API interactions

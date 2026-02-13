@@ -1,13 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
-import logger from "./logger.js";
-import { EmailService } from "./email-service.js";
+import logger from "./logger";
+import { EmailService } from "./email-service";
 import {
   SendEmailRequest,
   SendEmailResponse,
   ErrorResponse,
   ErrorCode,
-} from "./types.js";
-import { isValidVariables, sanitizeEmail } from "./utils.js";
+} from "./types";
+import { isValidVariables, sanitizeEmail } from "./utils";
 
 export function createRoutes(emailService: EmailService): Router {
   const router = Router();

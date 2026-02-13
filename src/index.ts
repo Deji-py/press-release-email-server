@@ -1,9 +1,9 @@
 import "dotenv/config";
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import logger from "./logger.js";
-import { createEmailService } from "./email-service.js";
-import { createRoutes, errorHandler } from "./routes.js";
+import logger from "./logger";
+import { createEmailService } from "./email-service";
+import { createRoutes, errorHandler } from "./routes";
 
 const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -80,48 +80,50 @@ app.use((_req: Request, res: Response) => {
 // Error handler
 app.use(errorHandler);
 
-// Start server
-const server = app.listen(PORT, () => {
-  logger.info(`Email server running`, {
-    port: PORT,
-    environment: NODE_ENV,
-    corsOrigins,
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== "1") {
+  const server = app.listen(PORT, () => {
+    logger.info(`Email server running`, {
+      port: PORT,
+      environment: NODE_ENV,
+      corsOrigins,
+    });
   });
-});
 
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  logger.info("SIGTERM received, shutting down gracefully");
-  server.close(() => {
-    logger.info("Email server stopped");
-    process.exit(0);
+  // Graceful shutdown
+  process.on("SIGTERM", () => {
+    logger.info("SIGTERM received, shutting down gracefully");
+    server.close(() => {
+      logger.info("Email server stopped");
+      process.exit(0);
+    });
   });
-});
 
-process.on("SIGINT", () => {
-  logger.info("SIGINT received, shutting down gracefully");
-  server.close(() => {
-    logger.info("Email server stopped");
-    process.exit(0);
+  process.on("SIGINT", () => {
+    logger.info("SIGINT received, shutting down gracefully");
+    server.close(() => {
+      logger.info("Email server stopped");
+      process.exit(0);
+    });
   });
-});
 
-// Handle uncaught exceptions
-process.on("uncaughtException", (error) => {
-  logger.error("Uncaught exception", {
-    error: error.message,
-    stack: error.stack,
+  // Handle uncaught exceptions
+  process.on("uncaughtException", (error) => {
+    logger.error("Uncaught exception", {
+      error: error.message,
+      stack: error.stack,
+    });
+    process.exit(1);
   });
-  process.exit(1);
-});
 
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error("Unhandled rejection", {
-    reason: String(reason),
-    promise: String(promise),
+  // Handle unhandled promise rejections
+  process.on("unhandledRejection", (reason, promise) => {
+    logger.error("Unhandled rejection", {
+      reason: String(reason),
+      promise: String(promise),
+    });
+    process.exit(1);
   });
-  process.exit(1);
-});
+}
 
 export default app;
