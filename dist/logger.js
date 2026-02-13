@@ -10,15 +10,12 @@ const logger = winston_1.default.createLogger({
     format: winston_1.default.format.combine(winston_1.default.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), winston_1.default.format.errors({ stack: true }), winston_1.default.format.splat(), winston_1.default.format.json()),
     defaultMeta: { service: "resend-email-server" },
     transports: [
-        new winston_1.default.transports.File({ filename: "logs/error.log", level: "error" }),
-        new winston_1.default.transports.File({ filename: "logs/combined.log" }),
+        new winston_1.default.transports.Console({
+            format: winston_1.default.format.combine(winston_1.default.format.colorize(), winston_1.default.format.printf(({ level, message, timestamp, ...meta }) => `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ""}`)),
+        }),
     ],
 });
-// Add console transport for development
-if (process.env.NODE_ENV !== "production") {
-    logger.add(new winston_1.default.transports.Console({
-        format: winston_1.default.format.combine(winston_1.default.format.colorize(), winston_1.default.format.printf(({ level, message, timestamp, ...meta }) => `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ""}`)),
-    }));
-}
+exports.default = logger;
+;
 exports.default = logger;
 //# sourceMappingURL=logger.js.map
