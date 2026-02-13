@@ -11,3 +11,5 @@ logs/
 .vscode/
 .idea/
 *.iml
+.vercel
+.env*.local
