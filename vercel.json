@@ -6,16 +6,16 @@
     "NODE_ENV": "production"
   },
   "functions": {
-    "src/index.ts": {
-      "runtime": "nodejs20.x",
+    "dist/index.js": {
+      "runtime": "nodejs@20.x",
       "memory": 1024,
       "maxDuration": 60
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/src/index.ts"
+      "src": "/(.*)",
+      "dest": "/dist/index.js"
     }
   ]
 }
