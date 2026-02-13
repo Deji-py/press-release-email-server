@@ -73,36 +73,34 @@ app.use((_req: Request, res: Response) => {
 // Error handler
 app.use(errorHandler);
 
-// Start server only if not in Vercel environment
-if (process.env.VERCEL !== "1") {
-  const server = app.listen(PORT, () => {
-    console.log(`Email server running on port ${PORT}`);
-  });
+// Start server - Vercel will set PORT env var automatically
+const server = app.listen(PORT, () => {
+  console.log(`Email server running on port ${PORT}`);
+});
 
-  // Graceful shutdown
-  process.on("SIGTERM", () => {
-    server.close(() => {
-      process.exit(0);
-    });
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  server.close(() => {
+    process.exit(0);
   });
+});
 
-  process.on("SIGINT", () => {
-    server.close(() => {
-      process.exit(0);
-    });
+process.on("SIGINT", () => {
+  server.close(() => {
+    process.exit(0);
   });
+});
 
-  // Handle uncaught exceptions
-  process.on("uncaughtException", (error) => {
-    console.error("Uncaught exception:", error.message);
-    process.exit(1);
-  });
+// Handle uncaught exceptions
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception:", error.message);
+  process.exit(1);
+});
 
-  // Handle unhandled promise rejections
-  process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled rejection:", reason);
-    process.exit(1);
-  });
-}
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection:", reason);
+  process.exit(1);
+});
 
 export default app;
