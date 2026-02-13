@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import logger from "./logger";
 import { createEmailService } from "./email-service";
 import { createRoutes, errorHandler } from "./routes";
 
@@ -30,7 +29,6 @@ app.use(express.urlencoded({ limit: "10kb", extended: true }));
 
 // Request logging middleware
 app.use((req: Request, _res: Response, next) => {
-  logger.info(`${req.method} ${req.path}`);
   next();
 });
 
@@ -38,12 +36,7 @@ app.use((req: Request, _res: Response, next) => {
 let emailService: ReturnType<typeof createEmailService>;
 try {
   emailService = createEmailService();
-  logger.info("Email service initialized successfully");
 } catch (error) {
-  const errorMsg = error instanceof Error ? error.message : String(error);
-  logger.error("Failed to initialize email service", {
-    error: errorMsg,
-  });
   process.exit(1);
 }
 
@@ -83,45 +76,31 @@ app.use(errorHandler);
 // Start server only if not in Vercel environment
 if (process.env.VERCEL !== "1") {
   const server = app.listen(PORT, () => {
-    logger.info(`Email server running`, {
-      port: PORT,
-      environment: NODE_ENV,
-      corsOrigins,
-    });
+    console.log(`Email server running on port ${PORT}`);
   });
 
   // Graceful shutdown
   process.on("SIGTERM", () => {
-    logger.info("SIGTERM received, shutting down gracefully");
     server.close(() => {
-      logger.info("Email server stopped");
       process.exit(0);
     });
   });
 
   process.on("SIGINT", () => {
-    logger.info("SIGINT received, shutting down gracefully");
     server.close(() => {
-      logger.info("Email server stopped");
       process.exit(0);
     });
   });
 
   // Handle uncaught exceptions
   process.on("uncaughtException", (error) => {
-    logger.error("Uncaught exception", {
-      error: error.message,
-      stack: error.stack,
-    });
+    console.error("Uncaught exception:", error.message);
     process.exit(1);
   });
 
   // Handle unhandled promise rejections
   process.on("unhandledRejection", (reason, promise) => {
-    logger.error("Unhandled rejection", {
-      reason: String(reason),
-      promise: String(promise),
-    });
+    console.error("Unhandled rejection:", reason);
     process.exit(1);
   });
 }

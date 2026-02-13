@@ -1,5 +1,4 @@
 import { Resend } from "resend";
-import logger from "./logger";
 import { SendEmailRequest, SendEmailResponse, ErrorCode } from "./types";
 import {
   isValidEmail,
@@ -28,8 +27,6 @@ export class EmailService {
 
     this.resend = new Resend(apiKey);
     this.fromEmail = fromEmail;
-
-    logger.info("EmailService initialized", { from: fromEmail });
   }
 
   /**
@@ -41,10 +38,6 @@ export class EmailService {
     try {
       // Validate recipient email
       if (!isValidEmail(request.recipientEmail)) {
-        logger.warn("Invalid recipient email", {
-          email: request.recipientEmail,
-        });
-
         return {
           success: false,
           error: `Invalid recipient email: ${request.recipientEmail}`,
@@ -56,10 +49,6 @@ export class EmailService {
       // Get template ID from template key
       const templateId = getTemplateId(request.templateId);
       if (!templateId) {
-        logger.warn("Template not found", {
-          templateKey: request.templateId,
-        });
-
         return {
           success: false,
           error: `Email template '${request.templateId}' not found. Available templates: ADMIN_INVITE, PRESS_RELEASE_APPROVED, PRESS_RELEASE_REJECTED, PRESS_RELEASE_OWNER_CUSTOM_EMAIL, USER_CUSTOM_EMAIL, BROADCAST_USERS`,
@@ -79,11 +68,6 @@ export class EmailService {
       // Add variables to template (normalized to UPPERCASE_SNAKE_CASE for Resend)
       if (request.variables && Object.keys(request.variables).length > 0) {
         templatePayload.variables = normalizeVariableNames(request.variables);
-
-        logger.info("Variables normalized for Resend", {
-          original: Object.keys(request.variables),
-          normalized: Object.keys(templatePayload.variables),
-        });
       }
 
       const payload: any = {
@@ -97,28 +81,12 @@ export class EmailService {
         payload.subject = request.overrideSubject;
       }
 
-      logger.info("Sending email via Resend", {
-        template: templateId,
-        recipient: request.recipientEmail,
-        variables: templatePayload.variables
-          ? Object.keys(templatePayload.variables)
-          : [],
-        payload: JSON.stringify(payload),
-      });
-
       // Send email
       const response = await this.resend.emails.send(payload);
 
       // Handle response
       if (response.error) {
         const errorMessage = getFriendlyErrorMessage(response.error);
-
-        logger.error("Resend API error", {
-          template: templateId,
-          recipient: request.recipientEmail,
-          error: errorMessage,
-          details: response.error,
-        });
 
         return {
           success: false,
@@ -130,12 +98,6 @@ export class EmailService {
 
       // Success
       const messageId = response.data?.id;
-
-      logger.info("Email sent successfully", {
-        template: templateId,
-        recipient: request.recipientEmail,
-        messageId,
-      });
 
       return {
         success: true,
@@ -149,22 +111,8 @@ export class EmailService {
       let code = ErrorCode.INTERNAL_SERVER_ERROR;
       if (isNetworkError(error)) {
         code = ErrorCode.RESEND_API_ERROR;
-        logger.error("Network error sending email", {
-          error: errorMessage,
-          recipient: request.recipientEmail,
-        });
       } else if (isTimeoutError(error)) {
         code = ErrorCode.RESEND_API_ERROR;
-        logger.error("Timeout sending email", {
-          error: errorMessage,
-          recipient: request.recipientEmail,
-        });
-      } else {
-        logger.error("Unexpected error sending email", {
-          error: errorMessage,
-          recipient: request.recipientEmail,
-          stack: error instanceof Error ? error.stack : undefined,
-        });
       }
 
       return {
@@ -182,12 +130,8 @@ export class EmailService {
   async healthCheck(): Promise<boolean> {
     try {
       // Try to instantiate Resend to check API key validity
-      logger.info("Email service health check passed");
       return true;
     } catch (error) {
-      logger.error("Email service health check failed", {
-        error: getFriendlyErrorMessage(error),
-      });
       return false;
     }
   }

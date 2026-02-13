@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const logger_1 = __importDefault(require("./logger"));
 const email_service_1 = require("./email-service");
 const routes_1 = require("./routes");
 const PORT = process.env.PORT || 3001;
@@ -28,20 +27,14 @@ app.use(express_1.default.json({ limit: "10kb" }));
 app.use(express_1.default.urlencoded({ limit: "10kb", extended: true }));
 // Request logging middleware
 app.use((req, _res, next) => {
-    logger_1.default.info(`${req.method} ${req.path}`);
     next();
 });
 // Initialize email service
 let emailService;
 try {
     emailService = (0, email_service_1.createEmailService)();
-    logger_1.default.info("Email service initialized successfully");
 }
 catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    logger_1.default.error("Failed to initialize email service", {
-        error: errorMsg,
-    });
     process.exit(1);
 }
 // Routes
@@ -75,41 +68,27 @@ app.use(routes_1.errorHandler);
 // Start server only if not in Vercel environment
 if (process.env.VERCEL !== "1") {
     const server = app.listen(PORT, () => {
-        logger_1.default.info(`Email server running`, {
-            port: PORT,
-            environment: NODE_ENV,
-            corsOrigins,
-        });
+        console.log(`Email server running on port ${PORT}`);
     });
     // Graceful shutdown
     process.on("SIGTERM", () => {
-        logger_1.default.info("SIGTERM received, shutting down gracefully");
         server.close(() => {
-            logger_1.default.info("Email server stopped");
             process.exit(0);
         });
     });
     process.on("SIGINT", () => {
-        logger_1.default.info("SIGINT received, shutting down gracefully");
         server.close(() => {
-            logger_1.default.info("Email server stopped");
             process.exit(0);
         });
     });
     // Handle uncaught exceptions
     process.on("uncaughtException", (error) => {
-        logger_1.default.error("Uncaught exception", {
-            error: error.message,
-            stack: error.stack,
-        });
+        console.error("Uncaught exception:", error.message);
         process.exit(1);
     });
     // Handle unhandled promise rejections
     process.on("unhandledRejection", (reason, promise) => {
-        logger_1.default.error("Unhandled rejection", {
-            reason: String(reason),
-            promise: String(promise),
-        });
+        console.error("Unhandled rejection:", reason);
         process.exit(1);
     });
 }

@@ -1,5 +1,4 @@
 node_modules/
-logs/
 *.log
 .env
 .env.local
@@ -12,4 +11,4 @@ logs/
 .idea/
 *.iml
 .vercel
-.env*.local
+dist/

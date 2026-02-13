@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from "express";
-import logger from "./logger";
 import { EmailService } from "./email-service";
 import {
   SendEmailRequest,
@@ -57,11 +56,6 @@ export function createRoutes(emailService: EmailService): Router {
         }
 
         if (errors.length > 0) {
-          logger.warn("Validation error in send request", {
-            errors,
-            body: req.body,
-          });
-
           return res.status(400).json({
             success: false,
             error: `Validation failed: ${errors.join("; ")}`,
@@ -85,11 +79,6 @@ export function createRoutes(emailService: EmailService): Router {
         const statusCode = result.success ? 200 : 400;
         return res.status(statusCode).json(result);
       } catch (error) {
-        logger.error("Unexpected error in send endpoint", {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-
         return res.status(500).json({
           success: false,
           error: "Internal server error while processing email request",
@@ -138,10 +127,6 @@ export function createRoutes(emailService: EmailService): Router {
         });
       }
 
-      logger.info("Processing batch email send", {
-        count: emails.length,
-      });
-
       // Send all emails in parallel
       const results = await Promise.all(
         emails.map((email) => emailService.send(email)),
@@ -149,12 +134,6 @@ export function createRoutes(emailService: EmailService): Router {
 
       const successful = results.filter((r) => r.success).length;
       const failed = results.length - successful;
-
-      logger.info("Batch email send completed", {
-        total: results.length,
-        successful,
-        failed,
-      });
 
       return res.json({
         success: failed === 0,
@@ -167,11 +146,6 @@ export function createRoutes(emailService: EmailService): Router {
         timestamp,
       });
     } catch (error) {
-      logger.error("Unexpected error in batch send endpoint", {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
-
       return res.status(500).json({
         success: false,
         error: "Internal server error while processing batch emails",
@@ -213,11 +187,6 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   const timestamp = new Date().toISOString();
-
-  logger.error("Unhandled error", {
-    error: err.message,
-    stack: err.stack,
-  });
 
   res.status(500).json({
     success: false,
