@@ -21,7 +21,7 @@ const corsOptions = {
   maxAge: 86400, // 24 hours
 };
 
-app.use(cors(corsOptions));
+app.use(cors({ origin: '*' }));
 
 // Middleware
 app.use(express.json({ limit: "10kb" }));
