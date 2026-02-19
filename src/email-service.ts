@@ -14,19 +14,19 @@ import { getTemplateId } from "./templates";
  */
 export class EmailService {
   private resend: Resend;
-  private fromEmail: string;
+  // private fromEmail: string;
 
-  constructor(apiKey: string, fromEmail: string) {
+  constructor(apiKey: string) {
     if (!apiKey) {
       throw new Error("Resend API key is required");
     }
 
-    if (!fromEmail) {
-      throw new Error("From email is required");
-    }
+    // if (!fromEmail) {
+    //   throw new Error("From email is required");
+    // }
 
     this.resend = new Resend(apiKey);
-    this.fromEmail = fromEmail;
+    // this.fromEmail = fromEmail;
   }
 
   /**
@@ -71,7 +71,7 @@ export class EmailService {
       }
 
       const payload: any = {
-        from: this.fromEmail,
+        // from: this.fromEmail,
         to: request.recipientEmail,
         template: templatePayload,
       };
@@ -142,15 +142,15 @@ export class EmailService {
  */
 export function createEmailService(): EmailService {
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL;
+  // const fromEmail = process.env.RESEND_FROM_EMAIL;
 
   if (!apiKey) {
     throw new Error("RESEND_API_KEY environment variable is not set");
   }
 
-  if (!fromEmail) {
-    throw new Error("RESEND_FROM_EMAIL environment variable is not set");
-  }
+  // if (!fromEmail) {
+  //   throw new Error("RESEND_FROM_EMAIL environment variable is not set");
+  // }
 
-  return new EmailService(apiKey, fromEmail);
+  return new EmailService(apiKey);
 }
